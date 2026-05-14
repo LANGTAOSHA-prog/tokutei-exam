@@ -1,0 +1,88 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Prometric 学科40＋実技25 二阶段模拟考试</title>
+<style>
+:root{--g:#7fb069;--d:#333;--b:#ccc;--f:70px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:Arial,"Noto Sans JP","Microsoft YaHei",sans-serif;background:#fff;color:#222}
+.app{display:flex;flex-direction:column;height:100vh}.head{background:var(--d);color:#fff;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.badge{background:#111827;border:1px solid #64748b;border-radius:999px;padding:4px 10px;font-weight:bold;font-size:13px}
+.status{background:var(--g);color:#fff;padding:6px 12px;font-size:12px;display:flex;justify-content:space-between}
+.main{flex:1;display:flex;overflow:hidden}.side{width:55px;background:#f4f4f4;border-right:1px solid var(--b);overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:8px}
+.content{flex:1;overflow-y:auto;padding:15px 15px 150px}.space{min-height:150px;width:100%}
+@media(min-width:769px){.side{width:220px;flex-direction:row;flex-wrap:wrap;align-content:flex-start;padding:10px;gap:5px}.qnum{width:45px!important;height:45px!important}.space{display:none}}
+.qnum{width:40px;height:40px;border:1px solid #999;background:#fff;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:13px;flex-shrink:0;cursor:pointer}
+.qnum.active{border:2px solid var(--g);background:#ffffd0;font-weight:bold}.qnum.done{background:var(--g);color:#fff;border-color:var(--g)}.qnum.flag{background:#facc15!important;color:#000}
+.qtext{background:#f5f5f5;padding:15px;border-radius:6px;border-left:5px solid var(--g);font-size:18px;line-height:1.7;margin-bottom:16px;white-space:pre-line}
+.opt{border:1px solid var(--b);padding:15px;margin:10px 0;cursor:pointer;border-radius:8px;background:#fff;line-height:1.6;white-space:pre-line}.opt.sel{background:#e9f5e6;border-color:var(--g);font-weight:bold}
+.foot{position:fixed;bottom:0;left:0;right:0;height:var(--f);background:#444;color:#fff;padding:0 15px;display:flex;justify-content:space-between;align-items:center;padding-bottom:env(safe-area-inset-bottom);z-index:9999;box-shadow:0 -2px 10px #0005}
+.fl,.fr{display:flex;gap:10px;align-items:center}.ico{background:none;border:1px solid #777;color:#fff;border-radius:50%;width:38px;height:38px}.btn{background:var(--g);color:#fff;border:0;padding:10px 18px;border-radius:4px;font-weight:bold;font-size:14px;min-width:80px}.btn:disabled{opacity:.45}.gray{background:#666}.red{background:#cc0000}.top{background:#555;color:#fff;border:0;padding:8px 15px;border-radius:4px}
+#setup{position:fixed;inset:0;background:#f8fafc;z-index:20000;overflow:auto;padding:18px}.card{max-width:980px;margin:auto;background:#fff;border:1px solid #cbd5e1;border-radius:14px;padding:18px;box-shadow:0 8px 24px #0002}
+.card textarea{width:100%;min-height:240px;border:1px solid #94a3b8;border-radius:10px;padding:12px;font-family:Consolas,monospace;font-size:13px}.sbtn{background:#2563eb;color:#fff;border:0;border-radius:10px;padding:10px 14px;margin:5px;font-weight:bold}.green{background:#16a34a}.sred{background:#dc2626}
+#msg{white-space:pre-wrap;background:#0f172a;color:#bfdbfe;border-radius:10px;padding:12px;margin-top:10px;line-height:1.6}.small{font-size:13px;color:#475569;line-height:1.7}
+img.qimg{width:100%;max-height:280px;object-fit:contain;border-radius:6px;border:1px solid #ddd;margin:0 0 15px;background:#fff}
+#result{display:none;position:fixed;inset:0;background:#fff;z-index:10000;overflow:auto}.rhead{position:sticky;top:0;background:var(--d);padding:10px;display:flex;justify-content:space-between;z-index:10001}.scoregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.scorecard{border:1px solid #cbd5e1;border-radius:12px;padding:14px;text-align:center;background:#f8fafc}.num{font-size:28px;font-weight:bold;color:#1e40af}
+.rev{padding:15px 0;border-bottom:1px solid #e5e7eb}.bad{color:#dc2626}.good{color:#16a34a}ruby rt{font-size:10px;color:#555}
+@media(max-width:700px){.scoregrid{grid-template-columns:1fr}.badge{font-size:11px}.head{font-size:13px}.btn{padding:9px 12px}}
+</style></head><body>
+
+<div id="setup"><div class="card">
+<h1>Prometric 模拟考试：学科40题＋実技25题</h1>
+<p class="small">流程：学科40题 → 点击右下角「終了」进入実技25题 → 点击右上角「終了」显示总成绩、学科/実技成绩、正确答案。每次重新打开或重新开始都会重新随机抽题。</p>
+<button class="sbtn green" onclick="autoLoadAll()">自动读取全部题库</button>
+<button class="sbtn" onclick="startExam()">开始考试</button>
+<button class="sbtn" onclick="parsePaste()">解析粘贴内容</button>
+<button class="sbtn sred" onclick="clearBank()">清空题库</button>
+<textarea id="paste" placeholder="自动读取失败时，把 questions*.js、practice*.js、thn3_*.js 内容粘贴到这里。"></textarea>
+<div id="msg">等待操作。</div>
+</div></div>
+
+<div class="app" id="exam" style="display:none">
+<header class="head">
+<button class="top" onclick="backSetup()">🏠 メニュー</button><div class="badge" id="phase">学科試験</div><div id="timer" style="font-size:22px;font-weight:bold;color:#ffdd00">60:00</div><button class="top red" id="topEnd" onclick="topFinish()">終了</button>
+</header>
+<div class="status"><div id="title">質問: 1 / 40</div><div>受験者名: 模擬試験</div></div>
+<div class="main"><aside class="side"><div id="grid" style="display:contents"></div><div class="space"></div></aside><main class="content" id="scroll"><div id="quiz" style="max-width:800px;margin:auto"></div></main></div>
+<footer class="foot"><div class="fl"><button class="ico" onclick="alert('🚩 标记 / 戻る 上一题 / 次へ 下一题 / 終了 结束')">?</button><button class="ico" onclick="flag()">🚩</button></div><div class="fr"><button class="btn gray" id="prev" onclick="prev()">戻る</button><button class="btn" id="next" onclick="next()">次へ</button></div></footer>
+</div>
+
+<div id="result"><div class="rhead"><button class="top" onclick="backSetup()">🏠 メニュー</button><button class="btn" onclick="startExam()">🔄 もう一度</button></div>
+<div style="padding:20px"><div id="pct" style="text-align:center;font-size:50px;color:red;font-weight:bold;margin:20px 0">0%</div><div id="detail" style="text-align:center;font-size:18px"></div><div id="judge" style="text-align:center;font-size:18px;margin:10px 0 20px;font-weight:bold"></div>
+<div class="scoregrid"><div class="scorecard">総合<div class="num" id="st">0/65</div></div><div class="scorecard">学科試験<div class="num" id="sg">0/40</div></div><div class="scorecard">実技試験<div class="num" id="sj">0/25</div></div></div>
+<h2>全题结果・正确答案</h2><div id="review"></div></div></div>
+
+<script>
+const BASE="https://donghung94.github.io/1/";
+const QF=["questions.js","questions2.js","questions3.js","questions4.js","questions5.js","questions6.js","questions7.js","questions8.js","questions9.js"];
+const PF=["practice1_g1.js","practice2_g1.js","practice3_g1.js","practice4_g1.js","practice1.js","practice2.js","practice3.js","practice4.js","thn3_1.js","thn3_2.js","thn3_3.js","thn3_4.js","thn3_5.js","thn3_6.js","thn3_7.js"];
+let QS={},PS={},theory=[],practical=[],phase="gakuka",time=3600,timer=null;
+let exam={gakuka:{q:[],a:[],f:[],i:0},jitsugi:{q:[],a:[],f:[],i:0}};
+function msg(s){document.getElementById("msg").textContent=s}
+function fix(c){return String(c).replace(/\u00A0/g," ").replace(/questions\s*:\s*\[\s*shuffle\s*:\s*true\s*,\s*questions\s*:\s*\[/m,"questions: [").replace(/,\s*,/g,",")}
+function runQ(c){let w={QUESTION_SETS:QS,console:{log(){}}};QS=new Function("window","console",fix(c)+"\nreturn window.QUESTION_SETS||{}")(w,w.console);buildT()}
+function runP(c){let w={PRACTICE_SETS:PS,console:{log(){}}};PS=new Function("window","console",fix(c)+"\nreturn window.PRACTICE_SETS||{}")(w,w.console);buildP()}
+async function get(f){let urls=[BASE+f,"https://raw.githubusercontent.com/donghung94/1/main/"+f],last="";for(let u of urls){try{let r=await fetch(u,{cache:"no-store",mode:"cors"});if(!r.ok)throw Error("HTTP "+r.status);return await r.text()}catch(e){last=e.message}}throw Error(last)}
+async function autoLoadAll(){QS={};PS={};theory=[];practical=[];let logs=[];for(let f of QF){try{runQ(await get(f));logs.push("✅ 学科 "+f)}catch(e){logs.push("❌ 学科 "+f+" → "+e.message)}}for(let f of PF){try{runP(await get(f));logs.push("✅ 実技 "+f)}catch(e){logs.push("❌ 実技 "+f+" → "+e.message)}}msg("读取完成\n学科题库："+theory.length+"题\n実技题库："+practical.length+"题\n\n"+logs.join("\n"))}
+function parsePaste(){let t=document.getElementById("paste").value.trim();if(!t)return msg("粘贴框为空");let logs=[];try{runQ(t);logs.push("QUESTION_SETS 成功")}catch(e){logs.push("QUESTION_SETS 未识别/失败："+e.message)}try{runP(t);logs.push("PRACTICE_SETS 成功")}catch(e){logs.push("PRACTICE_SETS 未识别/失败："+e.message)}msg(logs.join("\n")+"\n学科："+theory.length+"题\n実技："+practical.length+"题")}
+function clearBank(){QS={};PS={};theory=[];practical=[];document.getElementById("paste").value="";msg("已清空")}
+function arrQ(id){let s=QS[id];return !s?[]:Array.isArray(s)?s:(s.questions||[])}
+function arrP(k){let s=PS[k];return !s?[]:Array.isArray(s)?s:(s.questions||[])}
+function buildT(){theory=[];for(let i=1;i<=9;i++)arrQ(String(i)).forEach(q=>theory.push({...q,_src:"学科 set="+i}))}
+function buildP(){practical=[];Object.keys(PS).forEach(k=>arrP(k).forEach(q=>practical.push({...q,_src:"実技 "+k})))}
+function sh(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startExam(){buildT();buildP();if(!theory.length)return msg("没有学科题库");if(!practical.length)return msg("没有実技题库");let n1=Math.min(40,theory.length),n2=Math.min(25,practical.length);exam.gakuka={q:sh([...theory]).slice(0,n1),a:Array(n1).fill(null),f:Array(n1).fill(false),i:0};exam.jitsugi={q:sh([...practical]).slice(0,n2),a:Array(n2).fill(null),f:Array(n2).fill(false),i:0};phase="gakuka";time=3600;document.getElementById("setup").style.display="none";document.getElementById("result").style.display="none";document.getElementById("exam").style.display="flex";startTimer();render()}
+function backSetup(){if(timer)clearInterval(timer);document.getElementById("exam").style.display="none";document.getElementById("result").style.display="none";document.getElementById("setup").style.display="block";msg("当前题库：学科 "+theory.length+"题 / 実技 "+practical.length+"题")}
+function cur(){return exam[phase]}function pname(){return phase==="gakuka"?"学科試験":"実技試験"}
+function esc(t){return String(t??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function ruby(t){return esc(t).replace(/([一-龯々〆ヶ]+)\s*[（(]([^）)]+)[）)]/g,(m,k,r)=>`<ruby>${k}<rt>${r}</rt></ruby>`)}
+function img(s){return /^https?:\/\//.test(s)?s:BASE+String(s).replace(/^\.\//,"")}
+function render(){let p=cur(),q=p.q[p.i],tot=p.q.length;document.getElementById("phase").textContent=pname();document.getElementById("title").textContent=pname()+"｜質問: "+(p.i+1)+" / "+tot;document.getElementById("topEnd").style.visibility=phase==="jitsugi"?"visible":"hidden";document.getElementById("quiz").innerHTML=`<div class="qtext"><b>${pname()} 問題 ${p.i+1}:</b><br>${ruby(q.q)}</div>${q.img?`<img class="qimg" src="${img(q.img)}">`:""}${(q.options||[]).map((o,i)=>`<div class="opt ${p.a[p.i]===i?"sel":""}" onclick="sel(${i})">${ruby(o)}</div>`).join("")}`;document.getElementById("grid").innerHTML=p.q.map((_,i)=>`<div class="qnum ${p.i===i?"active":""} ${p.a[i]!==null?"done":""} ${p.f[i]?"flag":""}" onclick="go(${i})">${i+1}</div>`).join("");document.getElementById("prev").disabled=p.i===0;document.getElementById("next").textContent=p.i===tot-1?(phase==="gakuka"?"終了":"次へ"):"次へ";document.getElementById("next").style.background=p.i===tot-1&&phase==="gakuka"?"#dc2626":"var(--g)";document.getElementById("scroll").scrollTop=0}
+function sel(i){cur().a[cur().i]=i;render()}function go(i){cur().i=i;render()}function prev(){if(cur().i>0){cur().i--;render()}}function flag(){cur().f[cur().i]=!cur().f[cur().i];render()}
+function next(){let p=cur();if(p.i<p.q.length-1){p.i++;render()}else if(phase==="gakuka"){let u=p.a.filter(x=>x===null).length;if(confirm((u?`学科に未回答 ${u} 問あります。\n`:"")+"実技試験へ進みますか？")){phase="jitsugi";exam.jitsugi.i=0;render()}}else alert("実技試験の提出は右上の「終了」ボタンを押してください。")}
+function topFinish(){if(phase==="gakuka")return alert("学科試験では右下の「終了」で実技試験へ進んでください。");let u=exam.jitsugi.a.filter(x=>x===null).length;if(confirm((u?`実技に未回答 ${u} 問あります。\n`:"")+"終了して結果を表示しますか？"))submit()}
+function startTimer(){if(timer)clearInterval(timer);timer=setInterval(()=>{time--;let m=Math.floor(time/60),s=time%60;document.getElementById("timer").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");if(time<=0){clearInterval(timer);submit()}},1000);document.getElementById("timer").textContent="60:00"}
+function score(p){let c=0;p.q.forEach((q,i)=>{if(p.a[i]===q.answer)c++});return c}
+function review(title,p){let h=`<h2>${title}</h2>`;p.q.forEach((q,i)=>{let ok=p.a[i]===q.answer,y=p.a[i]!=null&&q.options[p.a[i]]!==undefined?ruby(q.options[p.a[i]]):"未回答 / 未回答",r=q.options&&q.options[q.answer]!==undefined?ruby(q.options[q.answer]):q.answer;h+=`<div class="rev"><p><b>${title} Câu ${i+1}｜${q._src||"-"}｜${ok?"<span class=good>正解</span>":"<span class=bad>不正解</span>"}</b><br>${ruby(q.q)}</p>${q.img?`<img class="qimg" src="${img(q.img)}">`:""}<p class="${ok?"good":"bad"}">あなたの答え: ${y}</p><p class="good">正しい答え: ${r}</p>${q.explain?`<p><b>解析:</b><br>${ruby(q.explain)}</p>`:""}${q.tip?`<p><b>Tip:</b><br>${ruby(q.tip)}</p>`:""}</div>`});return h}
+function submit(){if(timer)clearInterval(timer);document.getElementById("exam").style.display="none";document.getElementById("result").style.display="block";let g=score(exam.gakuka),j=score(exam.jitsugi),t=g+j,total=exam.gakuka.q.length+exam.jitsugi.q.length,pct=Math.round(t/total*100);document.getElementById("pct").textContent=pct+"%";document.getElementById("detail").textContent=`総合正解: ${t} / ${total}`;document.getElementById("st").textContent=`${t} / ${total}`;document.getElementById("sg").textContent=`${g} / ${exam.gakuka.q.length}`;document.getElementById("sj").textContent=`${j} / ${exam.jitsugi.q.length}`;let gp=g>=Math.ceil(exam.gakuka.q.length*.65),jp=j>=Math.ceil(exam.jitsugi.q.length*.65),pass=pct>=65&&gp&&jp;document.getElementById("judge").textContent=(pass?"判定：合格レベル":"判定：復習が必要")+`｜学科 ${gp?"合格ライン":"未達"}｜実技 ${jp?"合格ライン":"未達"}`;document.getElementById("judge").style.color=pass?"#16a34a":"#dc2626";document.getElementById("review").innerHTML=review("学科試験",exam.gakuka)+review("実技試験",exam.jitsugi);scrollTo(0,0)}
+autoLoadAll();
+</script></body></html>
